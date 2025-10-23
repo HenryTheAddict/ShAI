@@ -1,0 +1,497 @@
+/* ShAI (Shae-I) - Additional CSS Styles */
+/* Complementary styles to the main embedded CSS */
+
+/* ========================
+   Utility Classes
+   ======================== */
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-3 { padding: 1rem; }
+.p-4 { padding: 1.5rem; }
+
+.hidden { display: none !important; }
+.visible { display: block !important; }
+
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-row { flex-direction: row; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+/* ========================
+   Enhanced Animations
+   ======================== */
+
+/* Heartbeat animation for the logo */
+@keyframes heartbeat {
+    0% { transform: scale(1); }
+    14% { transform: scale(1.1); }
+    28% { transform: scale(1); }
+    42% { transform: scale(1.1); }
+    70% { transform: scale(1); }
+    100% { transform: scale(1); }
+}
+
+.logo:hover {
+    animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Typewriter effect for pickup lines */
+@keyframes typewriter {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.typewriter-effect {
+    overflow: hidden;
+    border-right: 2px solid var(--primary-color);
+    white-space: nowrap;
+    animation: typewriter 2s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent; }
+    50% { border-color: var(--primary-color); }
+}
+
+/* Slide in from bottom animation */
+@keyframes slideInBottom {
+    0% {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-bottom {
+    animation: slideInBottom 0.5s ease-out forwards;
+}
+
+/* Glow effect for buttons */
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 5px var(--primary-color); }
+    50% { box-shadow: 0 0 20px var(--primary-color), 0 0 30px var(--primary-color); }
+}
+
+.btn-glow:hover {
+    animation: glow 2s infinite;
+}
+
+/* Shake animation for errors */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.shake-error {
+    animation: shake 0.5s ease-in-out;
+}
+
+/* ========================
+   Loading Enhancements
+   ======================== */
+
+.loading-dots::after {
+    content: '';
+    animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
+}
+
+/* Skeleton loading for pickup lines */
+.skeleton-line {
+    background: linear-gradient(90deg,
+        var(--bg-secondary) 25%,
+        var(--bg-tertiary) 50%,
+        var(--bg-secondary) 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 0.375rem;
+    height: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ========================
+   Accessibility Enhancements
+   ======================== */
+
+/* Focus indicators */
+.btn:focus,
+.input-field:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --primary-color: #000080;
+        --text-primary: #000000;
+        --bg-primary: #ffffff;
+        --border-color: #000000;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .background-animation::before {
+        animation: none;
+    }
+}
+
+/* ========================
+   Print Styles
+   ======================== */
+
+@media print {
+    * {
+        color: black !important;
+        background: white !important;
+    }
+
+    .no-print,
+    .btn,
+    .voice-controls,
+    .error-message,
+    .loading {
+        display: none !important;
+    }
+
+    .pickup-line {
+        border: 1px solid black;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        page-break-inside: avoid;
+    }
+
+    .logo::after {
+        content: " - AI Pickup Line Generator";
+        font-size: 0.5em;
+        font-weight: normal;
+    }
+}
+
+/* ========================
+   Mobile-specific Enhancements
+   ======================== */
+
+@media (max-width: 768px) {
+    /* Improve touch targets */
+    .btn {
+        min-height: 44px;
+        padding: 1rem 1.5rem;
+    }
+
+    .pickup-line {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Optimize for mobile keyboards */
+    .input-field:focus {
+        transform: none;
+        zoom: 1;
+    }
+
+    /* Better mobile typography */
+    .pickup-line-text {
+        font-size: 1.125rem;
+        line-height: 1.7;
+    }
+}
+
+/* ========================
+   Theme Variations
+   ======================== */
+
+/* Valentine's Day theme */
+.theme-valentine {
+    --primary-color: #e91e63;
+    --secondary-color: #f48fb1;
+    --accent-color: #ad1457;
+}
+
+/* Professional theme */
+.theme-professional {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --accent-color: #1e40af;
+}
+
+/* Fun theme */
+.theme-fun {
+    --primary-color: #7c3aed;
+    --secondary-color: #f59e0b;
+    --accent-color: #06b6d4;
+}
+
+/* ========================
+   Advanced Interactions
+   ======================== */
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Selection styling */
+::selection {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+::-moz-selection {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* ========================
+   Notification Enhancements
+   ======================== */
+
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    max-width: 350px;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-lg);
+    animation: slideInFromRight 0.3s ease-out;
+}
+
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.notification-success {
+    background: var(--success-color);
+    color: white;
+}
+
+.notification-error {
+    background: var(--error-color);
+    color: white;
+}
+
+.notification-info {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* ========================
+   Special Effects
+   ======================== */
+
+/* Confetti effect for successful generation */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--primary-color);
+    animation: confetti-fall 3s linear infinite;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-100vh) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* Particle effect for background */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.particle {
+    position: absolute;
+    background: var(--primary-color);
+    border-radius: 50%;
+    opacity: 0.1;
+    animation: particle-float 8s infinite ease-in-out;
+}
+
+@keyframes particle-float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-20px) rotate(180deg);
+    }
+}
+
+/* ========================
+   Component Enhancements
+   ======================== */
+
+/* Enhanced input field with floating label */
+.floating-label-group {
+    position: relative;
+}
+
+.floating-label {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    color: var(--text-muted);
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.floating-label-group .input-field:focus ~ .floating-label,
+.floating-label-group .input-field:not(:placeholder-shown) ~ .floating-label {
+    top: -0.5rem;
+    left: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--primary-color);
+    background: var(--bg-primary);
+    padding: 0 0.25rem;
+}
+
+/* Progress indicator */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--bg-tertiary);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+/* Tooltip enhancement */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+[data-tooltip]:hover:before {
+    opacity: 1;
+}

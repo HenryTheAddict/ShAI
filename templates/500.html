@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | ShAI</title>
+    <meta name="description" content="Oops! Something went wrong on our end.">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a67d8;
+            --secondary-color: #f093fb;
+            --accent-color: #4facfe;
+            --error-color: #f56565;
+            --warning-color: #ed8936;
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7fafc;
+            --border-color: #e2e8f0;
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.05);
+            --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+            --gradient-error: linear-gradient(135deg, var(--error-color) 0%, var(--warning-color) 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .error-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+            background: var(--bg-primary);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .error-icon {
+            font-size: 4rem;
+            color: var(--error-color);
+            margin-bottom: 1rem;
+            animation: shake 2s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            10%, 30%, 50%, 70%, 90% {
+                transform: translateX(-5px);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(5px);
+            }
+        }
+
+        .error-code {
+            font-size: 6rem;
+            font-weight: 700;
+            background: var(--gradient-error);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .error-message {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+
+        .pickup-line-suggestion {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border-left: 4px solid var(--error-color);
+            margin-bottom: 2rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .pickup-line-suggestion::before {
+            content: '"';
+            font-size: 1.5rem;
+            color: var(--error-color);
+        }
+
+        .pickup-line-suggestion::after {
+            content: '"';
+            font-size: 1.5rem;
+            color: var(--error-color);
+        }
+
+        .technical-details {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+        }
+
+        .technical-details h4 {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            justify-content: center;
+            min-width: 140px;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-warning:hover {
+            background: #d69e2e;
+            transform: translateY(-1px);
+        }
+
+        .logo-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.5rem;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        .logo-link:hover {
+            text-decoration: underline;
+        }
+
+        .retry-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(72, 187, 120, 0.1);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(72, 187, 120, 0.3);
+        }
+
+        .retry-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .error-code {
+                font-size: 4rem;
+            }
+
+            .error-title {
+                font-size: 1.5rem;
+            }
+
+            .error-message {
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-primary: #f7fafc;
+                --text-secondary: #e2e8f0;
+                --text-muted: #a0aec0;
+                --bg-primary: #1a202c;
+                --bg-secondary: #2d3748;
+                --border-color: #4a5568;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <a href="/" class="logo-link">
+            <i class="fas fa-heart"></i> ShAI
+        </a>
+
+        <div class="error-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+
+        <div class="error-code">500</div>
+
+        <h1 class="error-title">Server Error</h1>
+
+        <p class="error-message">
+            Oops! Something went wrong on our end. ShAI seems to be having trouble generating those smooth pickup lines right now.
+        </p>
+
+        <div class="pickup-line-suggestion">
+            Are you a server error? Because you're making my heart skip a beat and crash at the same time!
+        </div>
+
+        <div class="technical-details">
+            <h4></h4><i class="fas fa-info-circle"></i> What happened?</h4>
+            <p>Our servers encountered an unexpected error while processing your request. Our team has been notified and is working to fix the issue.</p>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                Go Home
+            </a>
+            <button onclick="location.reload()" class="btn btn-warning">
+                <i class="fas fa-redo"></i>
+                Try Again
+            </button>
+            <button onclick="history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Go Back
+            </button>
+        </div>
+
+        <div class="retry-info">
+            <p><i class="fas fa-lightbulb"></i> <strong>Tip:</strong> If the problem persists, try refreshing the page in a few minutes or check if your internet connection is stable.</p>
+        </div>
+    </div>
+
+    <script>
+        // Auto-retry after 30 seconds
+        setTimeout(() => {
+            if (confirm('Would you like to automatically retry loading the page?')) {
+                location.reload();
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
