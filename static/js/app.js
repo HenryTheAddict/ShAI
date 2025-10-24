@@ -72,9 +72,11 @@ class ShAIApp {
         window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
 
-      this.recognition.continuous = false;
+      // Improved settings for better dictation
+      this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.lang = "en-US";
+      this.recognition.maxAlternatives = 3;
 
       this.recognition.onstart = () => {
         this.isRecording = true;
@@ -94,9 +96,18 @@ class ShAIApp {
           }
         }
 
-        this.userInput.value = finalTranscript;
-        this.voiceStatusText.textContent = interimTranscript || "Listening...";
-        this.autoResizeTextarea();
+        // Update the input with final transcript
+        if (finalTranscript) {
+          this.userInput.value += finalTranscript;
+          this.autoResizeTextarea();
+        }
+
+        // Show interim results
+        if (interimTranscript) {
+          this.voiceStatusText.textContent = `Listening: "${interimTranscript}"`;
+        } else {
+          this.voiceStatusText.textContent = "Listening for your voice...";
+        }
       };
 
       this.recognition.onend = () => {
@@ -124,12 +135,18 @@ class ShAIApp {
               "Microphone access denied. Please allow microphone access.";
             break;
           case "no-speech":
-            errorMsg = "No speech detected. Try speaking louder.";
+            errorMsg =
+              "No speech detected. Try speaking louder or closer to the microphone.";
+            break;
+          case "audio-capture":
+            errorMsg =
+              "Microphone not found. Please check your audio settings.";
             break;
           default:
             errorMsg = `Voice recognition error: ${event.error}`;
         }
         this.voiceStatusText.textContent = errorMsg;
+        this.showError(errorMsg);
       };
     } else {
       this.voiceBtn.disabled = true;
@@ -153,7 +170,7 @@ class ShAIApp {
 
   startVoiceRecording() {
     try {
-      this.voiceControls.style.display = "flex";
+      this.voiceControls.classList.remove("hidden");
       this.recognition.start();
       this.voiceStatusText.textContent = "Starting voice recognition...";
     } catch (error) {
@@ -171,14 +188,14 @@ class ShAIApp {
   updateVoiceUI() {
     if (this.isRecording) {
       this.voiceBtn.innerHTML =
-        '<i class="fas fa-microphone pulse"></i> Listening...';
+        '<i class="fas fa-microphone animate-pulse"></i> Listening...';
       this.voiceBtn.disabled = true;
-      this.stopVoiceBtn.style.display = "inline-flex";
-      this.voiceIcon.className = "fas fa-microphone pulse";
+      this.stopVoiceBtn.classList.remove("hidden");
+      this.voiceIcon.className = "fas fa-microphone animate-pulse-slow";
     } else {
       this.voiceBtn.innerHTML = '<i class="fas fa-microphone"></i> Use Voice';
       this.voiceBtn.disabled = false;
-      this.stopVoiceBtn.style.display = "none";
+      this.stopVoiceBtn.classList.add("hidden");
       this.voiceIcon.className = "fas fa-microphone";
     }
   }
@@ -241,24 +258,29 @@ class ShAIApp {
     });
 
     // Show results section with animation
-    this.results.classList.add("show");
+    this.results.classList.remove("hidden");
     this.results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   createPickupLineElement(line, index) {
     const listItem = document.createElement("li");
-    listItem.className = "pickup-line";
+    listItem.className =
+      "group pickup-line rounded-lg border border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-800/30 dark:bg-slate-800/30 light:bg-white/30 hover:bg-slate-700/30 dark:hover:bg-slate-700/30 light:hover:bg-white/50 transition-all duration-200 cursor-pointer hover:border-purple-500/50 overflow-hidden";
     listItem.style.animationDelay = `${index * 0.1}s`;
 
     listItem.innerHTML = `
-            <div class="pickup-line-text">${this.escapeHtml(line)}</div>
-            <div class="pickup-line-actions">
-                <button class="action-btn copy-btn" data-text="${this.escapeHtml(line)}">
-                    <i class="fas fa-copy"></i> Copy
-                </button>
-                <button class="action-btn share-btn" data-text="${this.escapeHtml(line)}">
-                    <i class="fas fa-share"></i> Share
-                </button>
+            <div class="pickup-line-content">
+                <div class="w-full">
+                    <div class="text-slate-100 dark:text-slate-100 light:text-slate-900 mb-3 leading-relaxed text-lg">${this.escapeHtml(line)}</div>
+                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button class="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-slate-600 dark:hover:bg-slate-600 light:hover:bg-slate-200 hover:text-slate-100 dark:hover:text-slate-100 light:hover:text-slate-900 h-7 px-2 gap-1 copy-btn" data-text="${this.escapeHtml(line)}">
+                            <i class="fas fa-copy text-xs"></i> Copy
+                        </button>
+                        <button class="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-slate-600 dark:hover:bg-slate-600 light:hover:bg-slate-200 hover:text-slate-100 dark:hover:text-slate-100 light:hover:text-slate-900 h-7 px-2 gap-1 share-btn" data-text="${this.escapeHtml(line)}">
+                            <i class="fas fa-share text-xs"></i> Share
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
 
@@ -333,71 +355,57 @@ class ShAIApp {
 
   showTemporaryMessage(message, type = "info") {
     const messageEl = document.createElement("div");
-    messageEl.className = `temp-message temp-message-${type}`;
-    messageEl.textContent = message;
-    messageEl.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === "success" ? "var(--success-color)" : "var(--primary-color)"};
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: var(--shadow-lg);
-            z-index: 1000;
-            animation: slideInRight 0.3s ease-out;
-        `;
-
-    // Add animation styles
-    const style = document.createElement("style");
-    style.textContent = `
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOutRight {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-    document.head.appendChild(style);
+    messageEl.className = `toast-message ${type}`;
+    messageEl.innerHTML = `
+      <div class="flex items-center gap-2">
+        <i class="fas fa-${type === "success" ? "check-circle" : "exclamation-circle"}"></i>
+        <span>${this.escapeHtml(message)}</span>
+      </div>
+    `;
 
     document.body.appendChild(messageEl);
 
+    // Trigger show animation
+    requestAnimationFrame(() => {
+      messageEl.classList.add("show");
+    });
+
+    // Auto-remove after 3 seconds
     setTimeout(() => {
-      messageEl.style.animation = "slideOutRight 0.3s ease-in";
+      messageEl.classList.remove("show");
       setTimeout(() => {
-        document.body.removeChild(messageEl);
-        document.head.removeChild(style);
+        if (messageEl.parentNode) {
+          document.body.removeChild(messageEl);
+        }
       }, 300);
     }, 3000);
   }
 
   setLoadingState(loading) {
     if (loading) {
-      this.loading.classList.add("show");
-      this.results.classList.remove("show");
+      this.loading.classList.remove("hidden");
+      this.results.classList.add("hidden");
       this.generateBtn.disabled = true;
       this.generateBtn.innerHTML =
-        '<i class="fas fa-heart pulse"></i> Generating...';
+        '<i class="fas fa-heart animate-pulse"></i> Generating...';
     } else {
-      this.loading.classList.remove("show");
+      this.loading.classList.add("hidden");
       this.generateBtn.disabled = false;
       this.generateBtn.innerHTML =
-        '<i class="fas fa-heart"></i> Generate Pickup Lines';
+        '<i class="fas fa-heart"></i> Get some lines blud';
     }
   }
 
   showError(message) {
     this.errorMessage.textContent = message;
-    this.errorMessage.classList.add("show");
+    this.errorMessage.classList.remove("hidden");
     setTimeout(() => {
       this.hideError();
     }, 5000);
   }
 
   hideError() {
-    this.errorMessage.classList.remove("show");
+    this.errorMessage.classList.add("hidden");
   }
 
   escapeHtml(text) {
@@ -415,7 +423,7 @@ class ShAIApp {
 
       const data = await response.json();
       if (data.success) {
-        this.displayHistory(data.history);
+        this.displayHistory(data.history, data.current_session_id);
       } else {
         console.error("Failed to load history:", data.error);
       }
@@ -424,35 +432,48 @@ class ShAIApp {
     }
   }
 
-  displayHistory(history) {
+  displayHistory(history, currentSessionId) {
     this.historyList.innerHTML = "";
 
     if (!history || history.length === 0) {
-      this.noHistory.style.display = "block";
+      this.noHistory.classList.remove("hidden");
+      this.syncMobileHistory([]);
       return;
     }
 
-    this.noHistory.style.display = "none";
+    this.noHistory.classList.add("hidden");
 
     history.forEach((item) => {
-      const historyItem = this.createHistoryItem(item);
+      const historyItem = this.createHistoryItem(item, currentSessionId);
       this.historyList.appendChild(historyItem);
     });
+
+    // Sync with mobile history
+    this.syncMobileHistory(history, currentSessionId);
   }
 
-  createHistoryItem(item) {
+  createHistoryItem(item, currentSessionId) {
     const listItem = document.createElement("li");
-    listItem.className = "history-item";
+    const isCurrentSession = item.session_id === currentSessionId;
+    listItem.className = isCurrentSession
+      ? "p-3 rounded-md border border-purple-500/30 bg-purple-500/5 dark:bg-purple-500/5 light:bg-purple-100/50 hover:bg-purple-500/10 dark:hover:bg-purple-500/10 light:hover:bg-purple-100/70 cursor-pointer transition-colors"
+      : "p-3 rounded-md border border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-800/30 dark:bg-slate-800/30 light:bg-white/50 hover:bg-slate-700/30 dark:hover:bg-slate-700/30 light:hover:bg-white/70 cursor-pointer transition-colors";
     listItem.dataset.historyId = item.id;
 
     const timestamp = new Date(item.timestamp).toLocaleString();
     const linesCount = item.pickup_lines.length;
+    const sessionIndicator = isCurrentSession
+      ? '<i class="fas fa-user text-purple-400 text-xs" title="Your session"></i>'
+      : '<i class="fas fa-users text-slate-500 dark:text-slate-500 light:text-slate-400 text-xs" title="Other user"></i>';
 
     listItem.innerHTML = `
-            <div class="history-input">${this.escapeHtml(item.user_input)}</div>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span class="history-lines-count">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
-                <span class="history-timestamp">${timestamp}</span>
+            <div class="text-sm text-slate-200 dark:text-slate-200 light:text-slate-800 mb-2 line-clamp-2 leading-relaxed">${this.escapeHtml(item.user_input)}</div>
+            <div class="flex justify-between items-center text-xs">
+                <div class="flex items-center gap-2">
+                    ${sessionIndicator}
+                    <span class="text-slate-400 dark:text-slate-400 light:text-slate-600 font-medium">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
+                </div>
+                <span class="text-slate-500 dark:text-slate-500 light:text-slate-500">${timestamp}</span>
             </div>
         `;
 
@@ -465,8 +486,8 @@ class ShAIApp {
 
   selectHistoryItem(item) {
     // Remove active class from all history items
-    this.historyList.querySelectorAll(".history-item").forEach((el) => {
-      el.classList.remove("active");
+    this.historyList.querySelectorAll("li").forEach((el) => {
+      el.classList.remove("ring-2", "ring-purple-500");
     });
 
     // Add active class to selected item
@@ -474,7 +495,7 @@ class ShAIApp {
       `[data-history-id="${item.id}"]`,
     );
     if (selectedElement) {
-      selectedElement.classList.add("active");
+      selectedElement.classList.add("ring-2", "ring-purple-500");
     }
 
     // Update the input field and display results
@@ -497,7 +518,7 @@ class ShAIApp {
   async clearHistory() {
     if (
       !confirm(
-        "Are you sure you want to clear all your pickup line history? This cannot be undone.",
+        "Are you sure you want to clear ALL pickup line history for everyone? This cannot be undone and will affect all users.",
       )
     ) {
       return;
@@ -515,11 +536,15 @@ class ShAIApp {
       const data = await response.json();
       if (data.success) {
         this.historyList.innerHTML = "";
-        this.noHistory.style.display = "block";
-        this.results.classList.remove("show");
+        this.noHistory.classList.remove("hidden");
+        this.results.classList.add("hidden");
         this.userInput.value = "";
         this.currentHistoryId = null;
-        this.showTemporaryMessage("History cleared successfully!", "success");
+        this.syncMobileHistory([]);
+        this.showTemporaryMessage(
+          "All history cleared successfully!",
+          "success",
+        );
       } else {
         throw new Error(data.error || "Failed to clear history");
       }
@@ -527,6 +552,65 @@ class ShAIApp {
       console.error("Error clearing history:", error);
       this.showError(`Failed to clear history: ${error.message}`);
     }
+  }
+
+  syncMobileHistory(history, currentSessionId) {
+    const mobileHistoryContainer = document.querySelector(
+      ".lg\\:hidden .space-y-3",
+    );
+    if (!mobileHistoryContainer) return;
+
+    mobileHistoryContainer.innerHTML = "";
+
+    if (!history || history.length === 0) {
+      mobileHistoryContainer.innerHTML = `
+        <div class="text-center py-8 text-slate-400">
+          <i class="fas fa-heart text-2xl mb-2 opacity-50"></i>
+          <p class="text-xs">No pickup lines yet.<br>Start creating!</p>
+        </div>
+      `;
+      return;
+    }
+
+    history.forEach((item) => {
+      const mobileHistoryItem = this.createMobileHistoryItem(
+        item,
+        currentSessionId,
+      );
+      mobileHistoryContainer.appendChild(mobileHistoryItem);
+    });
+  }
+
+  createMobileHistoryItem(item, currentSessionId) {
+    const listItem = document.createElement("div");
+    const isCurrentSession = item.session_id === currentSessionId;
+    listItem.className = isCurrentSession
+      ? "p-3 rounded-md border border-purple-500/30 bg-purple-500/5 dark:bg-purple-500/5 light:bg-purple-100/50 hover:bg-purple-500/10 dark:hover:bg-purple-500/10 light:hover:bg-purple-100/70 cursor-pointer transition-colors"
+      : "p-3 rounded-md border border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-800/30 dark:bg-slate-800/30 light:bg-white/50 hover:bg-slate-700/30 dark:hover:bg-slate-700/30 light:hover:bg-white/70 cursor-pointer transition-colors";
+    listItem.dataset.historyId = item.id;
+
+    const timestamp = new Date(item.timestamp).toLocaleString();
+    const linesCount = item.pickup_lines.length;
+    const sessionIndicator = isCurrentSession
+      ? '<i class="fas fa-user text-purple-400 text-xs" title="Your session"></i>'
+      : '<i class="fas fa-users text-slate-500 dark:text-slate-500 light:text-slate-400 text-xs" title="Other user"></i>';
+
+    listItem.innerHTML = `
+      <div class="text-sm text-slate-200 dark:text-slate-200 light:text-slate-800 mb-2 line-clamp-2 leading-relaxed">${this.escapeHtml(item.user_input)}</div>
+      <div class="flex justify-between items-center text-xs">
+        <div class="flex items-center gap-2">
+          ${sessionIndicator}
+          <span class="text-slate-400 dark:text-slate-400 light:text-slate-600 font-medium">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
+        </div>
+        <span class="text-slate-500 dark:text-slate-500 light:text-slate-500">${timestamp}</span>
+      </div>
+    `;
+
+    listItem.addEventListener("click", () => {
+      this.selectHistoryItem(item);
+    });
+
+    return listItem;
   }
 }
 
