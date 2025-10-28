@@ -63,7 +63,7 @@ class PickupLineGenerator:
                 Do not include any text outside the JSON array."""
 
         data = {
-            "model": "claude-3-5-haiku-20241022",
+            "model": "claude-4-5-haiku-20251001",
             "max_tokens": 500,
             "messages": [{"role": "user", "content": prompt}],
         }
