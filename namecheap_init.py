@@ -168,22 +168,22 @@ class NamecheapInitializer:
             try:
                 __import__(package)
                 results["required"][package] = "Available"
-                logger.info("Required package '%s' is available", package)
+                logger.info(f"✓ Required package '{package}' is available")
             except ImportError:
                 results["required"][package] = "Missing"
                 results["missing_required"].append(package)
-                logger.error("Required package '%s' is missing", package)
+                logger.error(f"✗ Required package '{package}' is missing")
 
         # Check optional packages
         for package in optional_packages:
             try:
                 __import__(package.replace("-", "_"))
                 results["optional"][package] = "Available"
-                logger.info("Optional package '%s' is available", package)
+                logger.info(f"✓ Optional package '{package}' is available")
             except ImportError:
                 results["optional"][package] = "Missing"
                 results["missing_optional"].append(package)
-                logger.warning("Optional package '%s' is missing", package)
+                logger.warning(f"⚠ Optional package '{package}' is missing")
 
         return results
 
@@ -232,28 +232,26 @@ class NamecheapInitializer:
                         )
 
                         if result.returncode == 0:
-                            logger.info("Successfully installed %s", package)
+                            logger.info(f"✓ Successfully installed {package}")
                             success_count += 1
                         else:
                             logger.error(
-                                "Failed to install %s: %s", package, result.stderr
+                                f"✗ Failed to install {package}: {result.stderr}"
                             )
 
                     except subprocess.TimeoutExpired:
-                        logger.error("Timeout installing %s", package)
+                        logger.error(f"✗ Timeout installing {package}")
                     except Exception as e:
-                        logger.error("Error installing %s: %s", package, str(e))
+                        logger.error(f"✗ Error installing {package}: {e}")
 
                 break  # If we got here, pip command worked
 
             except Exception as e:
-                logger.warning("Pip command failed: %s: %s", " ".join(pip_cmd), str(e))
+                logger.warning(f"Pip command failed: {' '.join(pip_cmd)}: {e}")
                 continue
 
         logger.info(
-            "Successfully installed %d/%d packages",
-            success_count,
-            len(missing_packages),
+            f"Successfully installed {success_count}/{len(missing_packages)} packages"
         )
         return success_count == len(missing_packages)
 
@@ -287,15 +285,15 @@ LOG_LEVEL=INFO
         try:
             with open(env_file, "w") as f:
                 f.write(env_content)
-            logger.info("Created .env file")
+            logger.info("✓ Created .env file")
 
             # Set appropriate permissions
             os.chmod(env_file, 0o600)  # Read/write for owner only
-            logger.info("Set secure permissions on .env file")
+            logger.info("✓ Set secure permissions on .env file")
 
             return True
         except Exception as e:
-            logger.error("Failed to create .env file: %s", str(e))
+            logger.error(f"✗ Failed to create .env file: {e}")
             return False
 
     def create_directory_structure(self):
@@ -315,9 +313,9 @@ LOG_LEVEL=INFO
                 # Set permissions (755 for directories)
                 os.chmod(directory, 0o755)
                 created_dirs.append(str(directory))
-                logger.info("Created/verified directory: %s", directory)
+                logger.info(f"✓ Created/verified directory: {directory}")
             except Exception as e:
-                logger.error("Failed to create directory %s: %s", directory, str(e))
+                logger.error(f"✗ Failed to create directory {directory}: {e}")
 
         return created_dirs
 
@@ -332,9 +330,9 @@ LOG_LEVEL=INFO
         # Verify the file is executable
         try:
             os.chmod(passenger_wsgi, 0o755)
-            logger.info("Set executable permissions on passenger_wsgi.py")
+            logger.info("✓ Set executable permissions on passenger_wsgi.py")
         except Exception as e:
-            logger.warning("Could not set permissions on passenger_wsgi.py: %s", str(e))
+            logger.warning(f"Could not set permissions on passenger_wsgi.py: {e}")
 
         # Test import of the WSGI file
         try:
@@ -342,13 +340,13 @@ LOG_LEVEL=INFO
             import passenger_wsgi
 
             if hasattr(passenger_wsgi, "application"):
-                logger.info("passenger_wsgi.py imports successfully")
+                logger.info("✓ passenger_wsgi.py imports successfully")
                 return True
             else:
-                logger.error("passenger_wsgi.py missing 'application' object")
+                logger.error("✗ passenger_wsgi.py missing 'application' object")
                 return False
         except Exception as e:
-            logger.error("Failed to import passenger_wsgi.py: %s", str(e))
+            logger.error(f"✗ Failed to import passenger_wsgi.py: {e}")
             return False
 
     def test_claude_api_connection(self):
@@ -390,14 +388,14 @@ LOG_LEVEL=INFO
 
             with urllib.request.urlopen(request, timeout=10, context=ctx) as response:
                 if response.status == 200:
-                    logger.info("Claude API connection successful")
+                    logger.info("✓ Claude API connection successful")
                     return True
                 else:
-                    logger.error("Claude API returned status %d", response.status)
+                    logger.error(f"✗ Claude API returned status {response.status}")
                     return False
 
         except Exception as e:
-            logger.error("Claude API connection failed: %s", str(e))
+            logger.error(f"✗ Claude API connection failed: {e}")
             return False
 
     def run_health_check(self):
@@ -425,10 +423,10 @@ LOG_LEVEL=INFO
             import app
 
             checks["app_import"] = True
-            logger.info("Main application imports successfully")
+            logger.info("✓ Main application imports successfully")
         except Exception as e:
             checks["app_import"] = False
-            logger.error("Failed to import main application: %s", str(e))
+            logger.error(f"✗ Failed to import main application: {e}")
 
         # Claude API test
         claude_test = self.test_claude_api_connection()
@@ -439,11 +437,11 @@ LOG_LEVEL=INFO
         passed = sum(1 for result in checks.values() if result is True)
         total = len(checks)
 
-        logger.info("Health check results: %d/%d checks passed", passed, total)
+        logger.info(f"Health check results: {passed}/{total} checks passed")
 
         for check, result in checks.items():
-            status = "[OK]" if result else "[FAIL]"
-            logger.info("%s %s: %s", status, check, result)
+            status = "✓" if result else "✗"
+            logger.info(f"{status} {check}: {result}")
 
         return checks, passed == total
 
@@ -555,9 +553,9 @@ LOG_LEVEL=INFO
                 f"Created missing directories: {', '.join(missing_dirs)}"
             )
 
-        logger.info("Applied %d fixes:", len(fixes_applied))
+        logger.info(f"Applied {len(fixes_applied)} fixes:")
         for fix in fixes_applied:
-            logger.info("  [OK] %s", fix)
+            logger.info(f"  ✓ {fix}")
 
         return fixes_applied
 
@@ -595,29 +593,29 @@ LOG_LEVEL=INFO
                 result = step_func()
                 results[step_name] = result
                 if result:
-                    logger.info("[SUCCESS] %s", step_name)
+                    logger.info(f"✓ {step_name}: SUCCESS")
                     success_count += 1
                 else:
-                    logger.warning("[PARTIAL] %s", step_name)
+                    logger.warning(f"⚠ {step_name}: PARTIAL or SKIPPED")
             except Exception as e:
-                logger.error("[FAILED] %s: %s", step_name, str(e))
+                logger.error(f"✗ {step_name}: FAILED - {e}")
                 results[step_name] = False
 
         # Final summary
         logger.info("\n" + "=" * 60)
         logger.info(
-            "Initialization Summary: %d/%d steps successful", success_count, total_steps
+            f"Initialization Summary: {success_count}/{total_steps} steps successful"
         )
         logger.info("=" * 60)
 
         if success_count >= 6:  # Most critical steps passed
-            logger.info("ShAI is ready for Namecheap deployment!")
+            logger.info("🎉 ShAI is ready for Namecheap deployment!")
             logger.info("Next steps:")
             logger.info("1. Set your CLAUDE_API_KEY in the .env file")
             logger.info("2. Upload all files to your public_html directory")
             logger.info("3. Configure Python app in cPanel to use passenger_wsgi.py")
         else:
-            logger.warning("Initialization completed with issues")
+            logger.warning("⚠️  Initialization completed with issues")
             logger.info("Check the logs above for specific problems to resolve")
 
         return results, success_count >= 6
@@ -643,14 +641,14 @@ def main():
         print("=== Verifying ShAI Setup ===")
         checks, all_passed = initializer.run_health_check()
         if all_passed:
-            print("All checks passed!")
+            print("✅ All checks passed!")
         else:
-            print("Some checks failed. Run with --debug for details.")
+            print("❌ Some checks failed. Run with --debug for details.")
 
     elif args.fix:
         print("=== Fixing Common Issues ===")
         fixes = initializer.fix_common_issues()
-        print("Applied %d fixes." % len(fixes))
+        print(f"Applied {len(fixes)} fixes.")
 
     else:
         # Full initialization

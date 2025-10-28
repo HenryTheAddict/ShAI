@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Wahduh - Token Usage | ShAI</title>
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- Font Awesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+
+        <!-- Tailwind Config -->
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            border: "hsl(214.3 31.8% 91.4%)",
+                            input: "hsl(214.3 31.8% 91.4%)",
+                            ring: "hsl(222.2 84% 4.9%)",
+                            background: "hsl(0 0% 100%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                            primary: {
+                                DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                                foreground: "hsl(210 40% 98%)",
+                            },
+                            secondary: {
+                                DEFAULT: "hsl(210 40% 96%)",
+                                foreground: "hsl(222.2 84% 4.9%)",
+                            },
+                            muted: {
+                                DEFAULT: "hsl(210 40% 96%)",
+                                foreground: "hsl(215.4 16.3% 46.9%)",
+                            },
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <style>
+            .animate-in {
+                animation: fadeInUp 0.5s ease-out;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .glassmorphism {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .dark .glassmorphism {
+                background: rgba(17, 24, 39, 0.8);
+                border: 1px solid rgba(75, 85, 99, 0.2);
+            }
+
+            .token-counter {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            .gallon-counter {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+        </style>
+    </head>
+
+    <body
+        class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-300"
+    >
+        <!-- Header -->
+        <header
+            class="border-b border-gray-200 dark:border-gray-800 glassmorphism"
+        >
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <a
+                            href="/"
+                            class="flex items-center space-x-2 text-xl font-bold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Back to ShAI</span>
+                        </a>
+                        <a
+                            href="/agreebot"
+                            class="text-sm text-purple-400 font-medium hover:text-purple-300 transition-colors"
+                        >
+                            <i class="fas fa-thumbs-up mr-1"></i>AgreeBot
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <button
+                            id="refreshBtn"
+                            class="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                        >
+                            <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                            <span>Refresh</span>
+                        </button>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-tachometer-alt text-blue-600"></i>
+                            <span
+                                class="text-sm text-gray-600 dark:text-gray-300"
+                                >Usage Dashboard</span
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-center mb-12 animate-in">
+                    <h1
+                        class="text-4xl font-bold text-gray-900 dark:text-white mb-4"
+                    >
+                        Wahduh
+                    </h1>
+                    <p class="text-lg text-gray-600 dark:text-gray-300">
+                        Token usage tracking and gallon conversion dashboard
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <!-- Token Usage Card -->
+                    <div
+                        class="glassmorphism rounded-2xl p-8 text-center animate-in shadow-xl"
+                    >
+                        <div class="mb-6">
+                            <i
+                                class="fas fa-coins text-6xl text-blue-500 mb-4"
+                            ></i>
+                            <h2
+                                class="text-2xl font-bold text-gray-900 dark:text-white mb-2"
+                            >
+                                Total Tokens Used
+                            </h2>
+                        </div>
+                        <div
+                            class="token-counter text-6xl font-bold mb-4"
+                            id="tokenCount"
+                        >
+                            {{ "{:,}".format(tokens) }}
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Tokens consumed by AI interactions
+                        </p>
+                    </div>
+
+                    <!-- Gallon Conversion Card -->
+                    <div
+                        class="glassmorphism rounded-2xl p-8 text-center animate-in shadow-xl"
+                    >
+                        <div class="mb-6">
+                            <i
+                                class="fas fa-gas-pump text-6xl text-pink-500 mb-4"
+                            ></i>
+                            <h2
+                                class="text-2xl font-bold text-gray-900 dark:text-white mb-2"
+                            >
+                                Gallon Equivalent
+                            </h2>
+                        </div>
+                        <div
+                            class="gallon-counter text-6xl font-bold mb-4"
+                            id="gallonCount"
+                        >
+                            {{ "%.3f"|format(gallons) }}
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Gallons (500 tokens = 0.1 gallons)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Conversion Info -->
+                <div class="glassmorphism rounded-2xl p-8 animate-in shadow-xl">
+                    <h3
+                        class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center"
+                    >
+                        <i class="fas fa-calculator mr-2"></i>
+                        Conversion Details
+                    </h3>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div
+                                class="bg-blue-100 dark:bg-blue-900 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                            >
+                                <i
+                                    class="fas fa-exchange-alt text-2xl text-blue-600 dark:text-blue-400"
+                                ></i>
+                            </div>
+                            <h4
+                                class="font-semibold text-gray-900 dark:text-white mb-2"
+                            >
+                                Conversion Rate
+                            </h4>
+                            <p class="text-gray-600 dark:text-gray-300">
+                                500 tokens = 0.1 gallons
+                            </p>
+                        </div>
+
+                        <div class="text-center">
+                            <div
+                                class="bg-green-100 dark:bg-green-900 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                            >
+                                <i
+                                    class="fas fa-chart-line text-2xl text-green-600 dark:text-green-400"
+                                ></i>
+                            </div>
+                            <h4
+                                class="font-semibold text-gray-900 dark:text-white mb-2"
+                            >
+                                Per Token
+                            </h4>
+                            <p class="text-gray-600 dark:text-gray-300">
+                                0.0002 gallons each
+                            </p>
+                        </div>
+
+                        <div class="text-center">
+                            <div
+                                class="bg-purple-100 dark:bg-purple-900 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4"
+                            >
+                                <i
+                                    class="fas fa-tint text-2xl text-purple-600 dark:text-purple-400"
+                                ></i>
+                            </div>
+                            <h4
+                                class="font-semibold text-gray-900 dark:text-white mb-2"
+                            >
+                                Next Gallon
+                            </h4>
+                            <p
+                                class="text-gray-600 dark:text-gray-300"
+                                id="nextGallon"
+                            >
+                                {{ 5000 - (tokens % 5000) }} tokens to go
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fun Facts -->
+                <div class="mt-12 text-center animate-in">
+                    <div
+                        class="glassmorphism rounded-2xl p-6 inline-block shadow-xl"
+                    >
+                        <p class="text-gray-600 dark:text-gray-300 mb-2">
+                            <i
+                                class="fas fa-lightbulb mr-2 text-yellow-500"
+                            ></i>
+                            Fun fact: You've used enough tokens to fill
+                        </p>
+                        <p
+                            class="text-2xl font-bold text-gray-900 dark:text-white"
+                        >
+                            {% if gallons > 1 %} {{ "%.2f"|format(gallons) }}
+                            milk jugs! 🥛 {% elif gallons > 0.25 %} {{
+                            "%.2f"|format(gallons * 4) }} cups of coffee! ☕ {%
+                            else %} {{ "%.0f"|format(gallons * 1000) }} shot
+                            glasses! 🥃 {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer
+            class="border-t border-gray-200 dark:border-gray-800 glassmorphism"
+        >
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <p class="text-center text-sm text-gray-500 dark:text-gray-400">
+                    Made with ❤️ by ShAI • Tracking your token journey, one
+                    gallon at a time
+                </p>
+            </div>
+        </footer>
+
+        <script>
+            let isRefreshing = false;
+
+            // Manual refresh function
+            async function refreshTokenData() {
+                if (isRefreshing) return;
+
+                isRefreshing = true;
+                const refreshBtn = document.getElementById("refreshBtn");
+                const refreshIcon = document.getElementById("refreshIcon");
+
+                // Add spinning animation
+                refreshIcon.classList.add("fa-spin");
+                refreshBtn.disabled = true;
+
+                try {
+                    const response = await fetch("/api/tokens");
+                    const data = await response.json();
+
+                    // Update token count with animation
+                    const tokenElement = document.getElementById("tokenCount");
+                    const gallonElement =
+                        document.getElementById("gallonCount");
+                    const nextGallonElement =
+                        document.getElementById("nextGallon");
+
+                    tokenElement.style.transform = "scale(1.1)";
+                    gallonElement.style.transform = "scale(1.1)";
+
+                    setTimeout(() => {
+                        tokenElement.textContent = data.tokens.toLocaleString();
+                        gallonElement.textContent = data.gallons.toFixed(3);
+                        nextGallonElement.textContent =
+                            5000 - (data.tokens % 5000) + " tokens to go";
+
+                        tokenElement.style.transform = "scale(1)";
+                        gallonElement.style.transform = "scale(1)";
+                    }, 150);
+                } catch (error) {
+                    console.error("Error refreshing token data:", error);
+                } finally {
+                    // Remove spinning animation
+                    setTimeout(() => {
+                        refreshIcon.classList.remove("fa-spin");
+                        refreshBtn.disabled = false;
+                        isRefreshing = false;
+                    }, 500);
+                }
+            }
+
+            // Add event listeners
+            document.addEventListener("DOMContentLoaded", function () {
+                // Add refresh button click handler
+                document
+                    .getElementById("refreshBtn")
+                    .addEventListener("click", refreshTokenData);
+
+                // Add some fun animations
+                const cards = document.querySelectorAll(".animate-in");
+                cards.forEach((card, index) => {
+                    setTimeout(() => {
+                        card.style.opacity = "1";
+                        card.style.transform = "translateY(0)";
+                    }, index * 100);
+                });
+
+                // Add smooth transitions to counters
+                const counters = document.querySelectorAll(
+                    "#tokenCount, #gallonCount",
+                );
+                counters.forEach((counter) => {
+                    counter.style.transition = "transform 0.15s ease-in-out";
+                });
+            });
+
+            // Optional: Auto-refresh every 60 seconds (less frequent than before)
+            setInterval(refreshTokenData, 60000);
+        </script>
+    </body>
+</html>

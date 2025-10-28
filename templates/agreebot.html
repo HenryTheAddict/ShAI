@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>AgreeBot - Always Agrees | ShAI</title>
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- Font Awesome -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+
+        <!-- Tailwind Config -->
+        <script>
+            tailwind.config = {
+                darkMode: "class",
+                theme: {
+                    extend: {
+                        colors: {
+                            border: "hsl(214.3 31.8% 91.4%)",
+                            input: "hsl(214.3 31.8% 91.4%)",
+                            ring: "hsl(222.2 84% 4.9%)",
+                            background: "hsl(0 0% 100%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                            primary: {
+                                DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                                foreground: "hsl(210 40% 98%)",
+                            },
+                            secondary: {
+                                DEFAULT: "hsl(210 40% 96%)",
+                                foreground: "hsl(222.2 84% 4.9%)",
+                            },
+                            muted: {
+                                DEFAULT: "hsl(210 40% 96%)",
+                                foreground: "hsl(215.4 16.3% 46.9%)",
+                            },
+                        },
+                    },
+                },
+            };
+        </script>
+
+        <style>
+            .animate-in {
+                animation: fadeInUp 0.5s ease-out;
+            }
+
+            @keyframes fadeInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .glassmorphism {
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+            }
+
+            .agreement-card {
+                transition: all 0.3s ease;
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            .agreement-card.show {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            .agreement-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            }
+
+            .pulse-success {
+                animation: pulseSuccess 0.6s ease-in-out;
+            }
+
+            @keyframes pulseSuccess {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+                100% { transform: scale(1); }
+            }
+
+            .typing-indicator {
+                display: inline-block;
+            }
+
+            .typing-indicator::after {
+                content: '';
+                animation: typing 1.5s infinite;
+            }
+
+            @keyframes typing {
+                0%, 20% { content: ''; }
+                40% { content: '.'; }
+                60% { content: '..'; }
+                80%, 100% { content: '...'; }
+            }
+        </style>
+    </head>
+
+    <body class="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-slate-100">
+        <!-- Background Pattern -->
+        <div class="fixed inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23ffffff" fill-opacity="0.03"%3E%3Cpath d="M0 0h40v40H0V0z"/%3E%3C/g%3E%3C/svg%3E')]"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="relative z-10 border-b border-slate-800/50 bg-slate-900/50 backdrop-blur-sm">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <a href="/" class="text-2xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent">
+                            ShAI
+                        </a>
+                        <div class="flex items-center gap-4">
+                            <a href="/" class="text-sm text-purple-400 font-medium hover:text-purple-300 transition-colors">
+                                <i class="fas fa-heart mr-1"></i>Pickup Lines
+                            </a>
+                            <a href="/wahduh" class="text-sm text-purple-400 font-medium hover:text-purple-300 transition-colors">
+                                <i class="fas fa-tachometer-alt mr-1"></i>Wahduh
+                            </a>
+                            <a href="/agreebot" class="text-sm text-pink-400 font-medium">
+                                <i class="fas fa-thumbs-up mr-1"></i>AgreeBot
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <i class="fas fa-thumbs-up text-green-400"></i>
+                        <span class="text-sm text-slate-300">Always Agrees</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="relative z-10 container mx-auto px-4 py-12">
+            <!-- Hero Section -->
+            <div class="text-center mb-12 animate-in">
+                <div class="mb-6">
+                    <i class="fas fa-thumbs-up text-6xl text-green-400 mb-4"></i>
+                </div>
+                <h1 class="text-5xl font-bold bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent mb-4">
+                    AgreeBot
+                </h1>
+                <p class="text-xl text-slate-300 mb-2">
+                    The most agreeable person you'll ever meet!
+                </p>
+                <p class="text-lg text-slate-400">
+                    Say anything, and I'll enthusiastically agree with you 100%
+                </p>
+            </div>
+
+            <!-- Input Section -->
+            <div class="max-w-4xl mx-auto mb-12">
+                <div class="glassmorphism rounded-2xl p-8 shadow-2xl animate-in">
+                    <div class="mb-6">
+                        <label for="userInput" class="block text-lg font-semibold text-slate-200 mb-3">
+                            <i class="fas fa-comment text-green-400 mr-2"></i>
+                            Tell me anything, and I'll agree with you!
+                        </label>
+                        <textarea
+                            id="userInput"
+                            rows="4"
+                            class="w-full p-4 rounded-xl bg-slate-800/50 border border-slate-700 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent resize-none text-lg"
+                            placeholder="Say something... anything! I'll agree with whatever you say!"
+                        ></textarea>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <button
+                            id="agreeBtn"
+                            class="flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold text-lg hover:from-green-600 hover:to-emerald-700 transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-lg"
+                        >
+                            <i class="fas fa-thumbs-up text-xl"></i>
+                            <span>Get Agreement!</span>
+                        </button>
+                        <button
+                            id="clearBtn"
+                            class="px-6 py-3 bg-slate-700/50 text-slate-300 rounded-xl font-semibold hover:bg-slate-600/50 transition-colors border border-slate-600"
+                        >
+                            <i class="fas fa-broom mr-2"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="text-center mb-8 hidden animate-in">
+                <div class="glassmorphism rounded-2xl p-6 inline-block shadow-xl">
+                    <i class="fas fa-robot text-3xl text-green-400 mb-2 animate-pulse"></i>
+                    <p class="text-slate-300">
+                        <span class="typing-indicator">AgreeBot is thinking of ways to agree with you</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Agreements Section -->
+            <div id="agreementsSection" class="max-w-4xl mx-auto hidden">
+                <div class="text-center mb-8">
+                    <h2 class="text-2xl font-bold text-slate-200 mb-2">
+                        <i class="fas fa-heart text-pink-400 mr-2"></i>
+                        AgreeBot's Enthusiastic Responses
+                    </h2>
+                    <p class="text-slate-400">Here's how much I agree with you!</p>
+                </div>
+
+                <div id="agreementsList" class="space-y-4">
+                    <!-- Agreements will be populated here by JavaScript -->
+                </div>
+
+                <div class="text-center mt-8">
+                    <button
+                        id="againBtn"
+                        class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-pink-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                        <i class="fas fa-redo mr-2"></i>
+                        Say Something Else!
+                    </button>
+                </div>
+            </div>
+
+            <!-- Fun Facts About AgreeBot -->
+            <div class="max-w-4xl mx-auto mt-16 animate-in">
+                <div class="glassmorphism rounded-2xl p-8 shadow-xl">
+                    <h3 class="text-2xl font-bold text-center text-slate-200 mb-8">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i>
+                        About AgreeBot
+                    </h3>
+
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="bg-green-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check-double text-2xl text-green-400"></i>
+                            </div>
+                            <h4 class="font-semibold text-slate-200 mb-2">100% Agreement</h4>
+                            <p class="text-slate-400 text-sm">I agree with absolutely everything you say, no exceptions!</p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="bg-pink-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-heart text-2xl text-pink-400"></i>
+                            </div>
+                            <h4 class="font-semibold text-slate-200 mb-2">Super Supportive</h4>
+                            <p class="text-slate-400 text-sm">Every response is positive, enthusiastic, and validating!</p>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="bg-purple-500/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-smile-beam text-2xl text-purple-400"></i>
+                            </div>
+                            <h4 class="font-semibold text-slate-200 mb-2">Always Positive</h4>
+                            <p class="text-slate-400 text-sm">I never disagree, argue, or contradict - only pure agreement!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="relative z-10 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-sm mt-16">
+            <div class="container mx-auto px-4 py-6">
+                <p class="text-center text-sm text-slate-400">
+                    Made with ❤️ by ShAI • AgreeBot: Where every opinion is the right opinion!
+                </p>
+            </div>
+        </footer>
+
+        <script>
+            let isGenerating = false;
+
+            // DOM elements
+            const userInput = document.getElementById('userInput');
+            const agreeBtn = document.getElementById('agreeBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const againBtn = document.getElementById('againBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const agreementsSection = document.getElementById('agreementsSection');
+            const agreementsList = document.getElementById('agreementsList');
+
+            // Generate agreements function
+            async function generateAgreements() {
+                if (isGenerating) return;
+
+                const input = userInput.value.trim();
+                if (!input) {
+                    showToast('Please enter something for me to agree with!', 'warning');
+                    return;
+                }
+
+                isGenerating = true;
+                agreeBtn.disabled = true;
+                agreeBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-xl"></i><span>Agreeing...</span>';
+
+                // Show loading indicator
+                loadingIndicator.classList.remove('hidden');
+                agreementsSection.classList.add('hidden');
+
+                try {
+                    const response = await fetch('/api/agree', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ input: input }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        displayAgreements(data.agreements, input);
+                        showToast('AgreeBot loves your input!', 'success');
+                    } else {
+                        showToast('Error: ' + data.error, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Something went wrong! But I still agree with you!', 'error');
+                }
+
+                // Hide loading indicator
+                loadingIndicator.classList.add('hidden');
+
+                // Reset button
+                isGenerating = false;
+                agreeBtn.disabled = false;
+                agreeBtn.innerHTML = '<i class="fas fa-thumbs-up text-xl"></i><span>Get Agreement!</span>';
+            }
+
+            // Display agreements function
+            function displayAgreements(agreements, originalInput) {
+                agreementsList.innerHTML = '';
+
+                agreements.forEach((agreement, index) => {
+                    const agreementCard = document.createElement('div');
+                    agreementCard.className = 'agreement-card glassmorphism rounded-xl p-6 shadow-lg border border-slate-700/50';
+
+                    agreementCard.innerHTML = `
+                        <div class="flex items-start gap-4">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-thumbs-up text-white"></i>
+                                </div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-sm font-semibold text-green-400">AgreeBot</span>
+                                    <span class="text-xs text-slate-500">• Just now</span>
+                                </div>
+                                <p class="text-slate-200 text-lg leading-relaxed">${agreement}</p>
+                            </div>
+                        </div>
+                    `;
+
+                    agreementsList.appendChild(agreementCard);
+
+                    // Animate in with delay
+                    setTimeout(() => {
+                        agreementCard.classList.add('show');
+                    }, index * 150);
+                });
+
+                agreementsSection.classList.remove('hidden');
+            }
+
+            // Show toast notification
+            function showToast(message, type = 'info') {
+                // Create toast element
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300 ${
+                    type === 'success' ? 'bg-green-600' :
+                    type === 'error' ? 'bg-red-600' :
+                    type === 'warning' ? 'bg-yellow-600' : 'bg-blue-600'
+                }`;
+                toast.innerHTML = `
+                    <div class="flex items-center gap-3 text-white">
+                        <i class="fas ${
+                            type === 'success' ? 'fa-check-circle' :
+                            type === 'error' ? 'fa-exclamation-circle' :
+                            type === 'warning' ? 'fa-exclamation-triangle' : 'fa-info-circle'
+                        }"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+
+                document.body.appendChild(toast);
+
+                // Animate in
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(0)';
+                }, 100);
+
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(toast);
+                    }, 300);
+                }, 3000);
+            }
+
+            // Clear input
+            function clearInput() {
+                userInput.value = '';
+                agreementsSection.classList.add('hidden');
+                userInput.focus();
+            }
+
+            // Event listeners
+            agreeBtn.addEventListener('click', generateAgreements);
+            clearBtn.addEventListener('click', clearInput);
+            againBtn.addEventListener('click', () => {
+                agreementsSection.classList.add('hidden');
+                userInput.focus();
+            });
+
+            // Enter key to generate
+            userInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    generateAgreements();
+                }
+            });
+
+            // Auto-focus input on load
+            window.addEventListener('load', () => {
+                userInput.focus();
+            });
+
+            // Add some entrance animations
+            document.addEventListener('DOMContentLoaded', function() {
+                const elements = document.querySelectorAll('.animate-in');
+                elements.forEach((element, index) => {
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                        element.style.transform = 'translateY(0)';
+                    }, index * 200);
+                });
+            });
+        </script>
+    </body>
+</html>

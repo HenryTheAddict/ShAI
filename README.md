@@ -211,12 +211,6 @@ curl -X POST http://localhost:5000/generate \
 - **Voice not working**: Use HTTPS and allow microphone permissions
 - **Slow responses**: Try a smaller Ollama model like `mistral`
 
-**Shared Hosting Issues:**
-- **Unicode/Encoding Errors**: The enhanced `passenger_wsgi.py` now uses ASCII-only logging to prevent encoding issues
-- **Missing Dependencies**: Run `python install_deps.py` to automatically install Flask, requests, etc.
-- **Import Errors**: Use `python namecheap_init.py --fix` to resolve common hosting issues
-- **Permission Errors**: The auto-initialization sets proper file permissions automatically
-
 **Getting Help:**
 - Check the detailed [SETUP.md](SETUP.md) guide
 - Verify your `.env` configuration

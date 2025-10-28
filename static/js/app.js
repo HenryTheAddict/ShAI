@@ -238,7 +238,7 @@ class ShAIApp {
       }
 
       this.displayResults(data);
-      this.loadHistory(); // Refresh history after generating
+      this.addToLocalHistory(data); // Add to local history
     } catch (error) {
       console.error("Error generating pickup lines:", error);
       this.showError(`Failed to generate pickup lines: ${error.message}`);
@@ -265,18 +265,18 @@ class ShAIApp {
   createPickupLineElement(line, index) {
     const listItem = document.createElement("li");
     listItem.className =
-      "group pickup-line rounded-lg border border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-800/30 dark:bg-slate-800/30 light:bg-white/30 hover:bg-slate-700/30 dark:hover:bg-slate-700/30 light:hover:bg-white/50 transition-all duration-200 cursor-pointer hover:border-purple-500/50 overflow-hidden";
+      "group pickup-line rounded-lg border border-slate-700 bg-slate-800/30 hover:bg-slate-700/30 transition-all duration-200 cursor-pointer hover:border-purple-500/50 overflow-hidden";
     listItem.style.animationDelay = `${index * 0.1}s`;
 
     listItem.innerHTML = `
             <div class="pickup-line-content">
                 <div class="w-full">
-                    <div class="text-slate-100 dark:text-slate-100 light:text-slate-900 mb-3 leading-relaxed text-lg">${this.escapeHtml(line)}</div>
-                    <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button class="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-slate-600 dark:hover:bg-slate-600 light:hover:bg-slate-200 hover:text-slate-100 dark:hover:text-slate-100 light:hover:text-slate-900 h-7 px-2 gap-1 copy-btn" data-text="${this.escapeHtml(line)}">
+                    <div class="text-slate-100 mb-3 leading-relaxed text-lg">${this.escapeHtml(line)}</div>
+                    <div class="pickup-line-actions flex gap-2">
+                        <button class="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-slate-600 hover:text-slate-100 h-7 px-2 gap-1 copy-btn" data-text="${this.escapeHtml(line)}">
                             <i class="fas fa-copy text-xs"></i> Copy
                         </button>
-                        <button class="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-slate-600 dark:hover:bg-slate-600 light:hover:bg-slate-200 hover:text-slate-100 dark:hover:text-slate-100 light:hover:text-slate-900 h-7 px-2 gap-1 share-btn" data-text="${this.escapeHtml(line)}">
+                        <button class="inline-flex items-center justify-center rounded-md text-xs font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-slate-600 hover:text-slate-100 h-7 px-2 gap-1 share-btn" data-text="${this.escapeHtml(line)}">
                             <i class="fas fa-share text-xs"></i> Share
                         </button>
                     </div>
@@ -414,25 +414,16 @@ class ShAIApp {
     return div.innerHTML;
   }
 
-  async loadHistory() {
+  loadHistory() {
     try {
-      const response = await fetch("/history");
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        this.displayHistory(data.history, data.current_session_id);
-      } else {
-        console.error("Failed to load history:", data.error);
-      }
+      const history = this.getLocalHistory();
+      this.displayHistory(history);
     } catch (error) {
-      console.error("Error loading history:", error);
+      console.error("Error loading local history:", error);
     }
   }
 
-  displayHistory(history, currentSessionId) {
+  displayHistory(history) {
     this.historyList.innerHTML = "";
 
     if (!history || history.length === 0) {
@@ -444,37 +435,34 @@ class ShAIApp {
     this.noHistory.classList.add("hidden");
 
     history.forEach((item) => {
-      const historyItem = this.createHistoryItem(item, currentSessionId);
+      const historyItem = this.createHistoryItem(item);
       this.historyList.appendChild(historyItem);
     });
 
     // Sync with mobile history
-    this.syncMobileHistory(history, currentSessionId);
+    this.syncMobileHistory(history);
   }
 
-  createHistoryItem(item, currentSessionId) {
+  createHistoryItem(item) {
     const listItem = document.createElement("li");
-    const isCurrentSession = item.session_id === currentSessionId;
-    listItem.className = isCurrentSession
-      ? "p-3 rounded-md border border-purple-500/30 bg-purple-500/5 dark:bg-purple-500/5 light:bg-purple-100/50 hover:bg-purple-500/10 dark:hover:bg-purple-500/10 light:hover:bg-purple-100/70 cursor-pointer transition-colors"
-      : "p-3 rounded-md border border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-800/30 dark:bg-slate-800/30 light:bg-white/50 hover:bg-slate-700/30 dark:hover:bg-slate-700/30 light:hover:bg-white/70 cursor-pointer transition-colors";
+    listItem.className =
+      "group p-3 rounded-md border border-slate-700 bg-slate-800/30 hover:bg-slate-700/30 cursor-pointer transition-colors relative";
     listItem.dataset.historyId = item.id;
 
     const timestamp = new Date(item.timestamp).toLocaleString();
     const linesCount = item.pickup_lines.length;
-    const sessionIndicator = isCurrentSession
-      ? '<i class="fas fa-user text-purple-400 text-xs" title="Your session"></i>'
-      : '<i class="fas fa-users text-slate-500 dark:text-slate-500 light:text-slate-400 text-xs" title="Other user"></i>';
 
     listItem.innerHTML = `
-            <div class="text-sm text-slate-200 dark:text-slate-200 light:text-slate-800 mb-2 line-clamp-2 leading-relaxed">${this.escapeHtml(item.user_input)}</div>
+            <div class="text-sm text-slate-200 mb-2 line-clamp-2 leading-relaxed pr-8">${this.escapeHtml(item.user_input)}</div>
             <div class="flex justify-between items-center text-xs">
                 <div class="flex items-center gap-2">
-                    ${sessionIndicator}
-                    <span class="text-slate-400 dark:text-slate-400 light:text-slate-600 font-medium">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
+                    <span class="text-slate-400 font-medium">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
                 </div>
-                <span class="text-slate-500 dark:text-slate-500 light:text-slate-500">${timestamp}</span>
+                <span class="text-slate-500">${timestamp}</span>
             </div>
+            <button class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-400 hover:text-red-300 p-1" onclick="event.stopPropagation(); app.deleteHistoryItem('${item.id}')">
+                <i class="fas fa-trash text-xs"></i>
+            </button>
         `;
 
     listItem.addEventListener("click", () => {
@@ -503,58 +491,35 @@ class ShAIApp {
     this.autoResizeTextarea();
     this.currentHistoryId = item.id;
 
-    // Create a data object similar to what the generate endpoint returns
-    const data = {
-      success: true,
-      input: item.user_input,
-      pickup_lines: item.pickup_lines,
-      timestamp: item.timestamp,
-      using_local: item.using_local,
-    };
-
-    this.displayResults(data);
+    // Display the pickup lines
+    this.displayResults(item);
   }
 
-  async clearHistory() {
+  clearHistory() {
     if (
       !confirm(
-        "Are you sure you want to clear ALL pickup line history for everyone? This cannot be undone and will affect all users.",
+        "Are you sure you want to clear your pickup line history? This cannot be undone.",
       )
     ) {
       return;
     }
 
     try {
-      const response = await fetch("/history", {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      if (data.success) {
-        this.historyList.innerHTML = "";
-        this.noHistory.classList.remove("hidden");
-        this.results.classList.add("hidden");
-        this.userInput.value = "";
-        this.currentHistoryId = null;
-        this.syncMobileHistory([]);
-        this.showTemporaryMessage(
-          "All history cleared successfully!",
-          "success",
-        );
-      } else {
-        throw new Error(data.error || "Failed to clear history");
-      }
+      localStorage.removeItem("shai-pickup-history");
+      this.historyList.innerHTML = "";
+      this.noHistory.classList.remove("hidden");
+      this.results.classList.add("hidden");
+      this.userInput.value = "";
+      this.currentHistoryId = null;
+      this.syncMobileHistory([]);
+      this.showTemporaryMessage("History cleared successfully!", "success");
     } catch (error) {
       console.error("Error clearing history:", error);
       this.showError(`Failed to clear history: ${error.message}`);
     }
   }
 
-  syncMobileHistory(history, currentSessionId) {
+  syncMobileHistory(history) {
     const mobileHistoryContainer = document.querySelector(
       ".lg\\:hidden .space-y-3",
     );
@@ -573,37 +538,31 @@ class ShAIApp {
     }
 
     history.forEach((item) => {
-      const mobileHistoryItem = this.createMobileHistoryItem(
-        item,
-        currentSessionId,
-      );
+      const mobileHistoryItem = this.createMobileHistoryItem(item);
       mobileHistoryContainer.appendChild(mobileHistoryItem);
     });
   }
 
-  createMobileHistoryItem(item, currentSessionId) {
+  createMobileHistoryItem(item) {
     const listItem = document.createElement("div");
-    const isCurrentSession = item.session_id === currentSessionId;
-    listItem.className = isCurrentSession
-      ? "p-3 rounded-md border border-purple-500/30 bg-purple-500/5 dark:bg-purple-500/5 light:bg-purple-100/50 hover:bg-purple-500/10 dark:hover:bg-purple-500/10 light:hover:bg-purple-100/70 cursor-pointer transition-colors"
-      : "p-3 rounded-md border border-slate-700 dark:border-slate-700 light:border-slate-300 bg-slate-800/30 dark:bg-slate-800/30 light:bg-white/50 hover:bg-slate-700/30 dark:hover:bg-slate-700/30 light:hover:bg-white/70 cursor-pointer transition-colors";
+    listItem.className =
+      "p-3 rounded-md border border-slate-700 bg-slate-800/30 hover:bg-slate-700/30 cursor-pointer transition-colors relative";
     listItem.dataset.historyId = item.id;
 
     const timestamp = new Date(item.timestamp).toLocaleString();
     const linesCount = item.pickup_lines.length;
-    const sessionIndicator = isCurrentSession
-      ? '<i class="fas fa-user text-purple-400 text-xs" title="Your session"></i>'
-      : '<i class="fas fa-users text-slate-500 dark:text-slate-500 light:text-slate-400 text-xs" title="Other user"></i>';
 
     listItem.innerHTML = `
-      <div class="text-sm text-slate-200 dark:text-slate-200 light:text-slate-800 mb-2 line-clamp-2 leading-relaxed">${this.escapeHtml(item.user_input)}</div>
+      <div class="text-sm text-slate-200 mb-2 line-clamp-2 leading-relaxed pr-8">${this.escapeHtml(item.user_input)}</div>
       <div class="flex justify-between items-center text-xs">
         <div class="flex items-center gap-2">
-          ${sessionIndicator}
-          <span class="text-slate-400 dark:text-slate-400 light:text-slate-600 font-medium">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
+          <span class="text-slate-400 font-medium">${linesCount} line${linesCount !== 1 ? "s" : ""}</span>
         </div>
-        <span class="text-slate-500 dark:text-slate-500 light:text-slate-500">${timestamp}</span>
+        <span class="text-slate-500">${timestamp}</span>
       </div>
+      <button class="absolute top-2 right-2 text-red-400 hover:text-red-300 p-1" onclick="event.stopPropagation(); app.deleteHistoryItem('${item.id}')">
+        <i class="fas fa-trash text-xs"></i>
+      </button>
     `;
 
     listItem.addEventListener("click", () => {
@@ -612,11 +571,68 @@ class ShAIApp {
 
     return listItem;
   }
+
+  // Local history management methods
+  getLocalHistory() {
+    try {
+      const history = localStorage.getItem("shai-pickup-history");
+      return history ? JSON.parse(history) : [];
+    } catch (error) {
+      console.error("Failed to load local history:", error);
+      return [];
+    }
+  }
+
+  saveLocalHistory(history) {
+    try {
+      localStorage.setItem("shai-pickup-history", JSON.stringify(history));
+    } catch (error) {
+      console.error("Failed to save local history:", error);
+    }
+  }
+
+  addToLocalHistory(data) {
+    try {
+      const history = this.getLocalHistory();
+      const historyItem = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        user_input: data.input,
+        pickup_lines: data.pickup_lines,
+        timestamp: data.timestamp,
+        using_local: data.using_local,
+      };
+
+      history.unshift(historyItem); // Add to beginning
+
+      // Keep only last 50 items
+      if (history.length > 50) {
+        history.splice(50);
+      }
+
+      this.saveLocalHistory(history);
+      this.loadHistory(); // Refresh display
+    } catch (error) {
+      console.error("Failed to add to local history:", error);
+    }
+  }
+
+  deleteHistoryItem(id) {
+    try {
+      const history = this.getLocalHistory();
+      const filteredHistory = history.filter((item) => item.id !== id);
+      this.saveLocalHistory(filteredHistory);
+      this.loadHistory(); // Refresh display
+      this.showTemporaryMessage("History item deleted!", "success");
+    } catch (error) {
+      console.error("Failed to delete history item:", error);
+      this.showError("Failed to delete history item");
+    }
+  }
 }
 
 // Initialize the app when the DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  new ShAIApp();
+  window.app = new ShAIApp();
 });
 
 // Add some additional utility functions
